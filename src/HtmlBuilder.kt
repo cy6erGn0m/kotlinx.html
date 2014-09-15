@@ -2,31 +2,31 @@ package kotlinx.html
 
 import java.util.*
 
-abstract class HtmlElement(val containingElement: HtmlElement?, val contentStyle: ContentStyle = ContentStyle.block) {
+public abstract class HtmlElement(val containingElement: HtmlElement?, val contentStyle: ContentStyle = ContentStyle.block) {
     {
         appendTo(containingElement)
     }
 
     private fun appendTo(element: HtmlElement?) = element?.children?.add(this)
 
-    val children: MutableList<HtmlElement> = ArrayList<HtmlElement>()
+    public val children: MutableList<HtmlElement> = ArrayList<HtmlElement>()
 
-    abstract fun renderElement(builder: StringBuilder, indent: String)
+    protected abstract fun renderElement(builder: StringBuilder, indent: String)
 
-    override fun toString(): String {
+    public override fun toString(): String {
         val builder = StringBuilder()
         renderElement(builder, "")
         return builder.toString()
     }
 }
 
-enum class RenderStyle {
+public enum class RenderStyle {
     adaptive
     expanded
     empty
 }
 
-enum class ContentStyle {
+public enum class ContentStyle {
     block
     text
     propagate
@@ -39,7 +39,7 @@ private fun HtmlElement.computeContentStyle(): ContentStyle {
     }
 }
 
-fun String.htmlEscapeTo(builder: StringBuilder) {
+private fun String.htmlEscapeTo(builder: StringBuilder) {
     val len = length()
 
     for (i in 0..len - 1) {
@@ -48,6 +48,7 @@ fun String.htmlEscapeTo(builder: StringBuilder) {
             '<' -> builder.append("&lt;")
             '>' -> builder.append("&gt;")
             '\"' -> builder.append("&quot;")
+            '&' -> builder.append("&amp;")
             else -> builder.append(c)
         }
     }
@@ -58,10 +59,10 @@ public fun build<T : HtmlTag>(tag: T, contents: T.() -> Unit): T {
     return tag
 }
 
-abstract class HtmlTag(containingTag: HtmlTag?, val tagName: String, val renderStyle: RenderStyle = RenderStyle.expanded, contentStyle: ContentStyle = ContentStyle.block) : HtmlElement(containingTag, contentStyle) {
-    private val attributes = HashMap<String, String>()
+public abstract class HtmlTag(containingTag: HtmlTag?, val tagName: String, val renderStyle: RenderStyle = RenderStyle.expanded, contentStyle: ContentStyle = ContentStyle.block) : HtmlElement(containingTag, contentStyle) {
+    private val attributes = LinkedHashMap<String, String>()
 
-    override fun renderElement(builder: StringBuilder, indent: String) {
+    protected override fun renderElement(builder: StringBuilder, indent: String) {
         val count = children.size()
         builder.append(indent).append('<').append(tagName)
         renderAttributes(builder)
@@ -122,6 +123,10 @@ abstract class HtmlTag(containingTag: HtmlTag?, val tagName: String, val renderS
         return attributes[attributeName]
     }
 
+    public fun hasAttribute(attributeName: String): Boolean {
+        return attributes.containsKey(attributeName)
+    }
+
     public fun get(attributeName: String): String {
         val answer = attributes[attributeName]
         if (answer == null) throw RuntimeException("Atrribute $attributeName is missing")
@@ -135,17 +140,21 @@ abstract class HtmlTag(containingTag: HtmlTag?, val tagName: String, val renderS
     /**
      * Override the not operator to add raw content
      */
-    fun String.not() = RawHtml(this@HtmlTag, this)
+    public fun String.not(): Unit {
+        RawHtml(this@HtmlTag, this)
+    }
 
     /**
      * Override the plus operator to add a text element.
      */
-    fun String.plus() = HtmlText(this@HtmlTag, this)
+    public fun String.plus() {
+        HtmlText(this@HtmlTag, this)
+    }
 
     /**
      * Yet another way to set the text content of the node.
      */
-    var text: String?
+    public var text: String?
         get() {
             if (children.size > 0)
                 return children[0].toString()
@@ -159,25 +168,29 @@ abstract class HtmlTag(containingTag: HtmlTag?, val tagName: String, val renderS
 
 }
 
-open class TransparentTag(containtingTag: HtmlTag?): HtmlBodyTag(containtingTag, "\$\$transaprent\$\$", contentStyle = ContentStyle.propagate) {
-    override fun renderElement(builder: StringBuilder, indent: String) {
+public open class TransparentTag(containtingTag: HtmlTag?) : HtmlBodyTag(containtingTag, "\$\$transaprent\$\$", contentStyle = ContentStyle.propagate) {
+    protected override fun renderElement(builder: StringBuilder, indent: String) {
         for (child in children) {
             child.renderElement(builder, indent)
         }
     }
 }
 
-class RawHtml(containingTag: HtmlTag?, private val html: String) : HtmlElement(containingTag, ContentStyle.text) {
-    override fun renderElement(builder: StringBuilder, indent: String) {
-        builder.append(indent)
-        builder.append(html)
-        if (indent != "")
-            builder.append("\n")
+public class RawHtml(containingTag: HtmlTag?, private val html: String) : HtmlElement(containingTag, ContentStyle.text) {
+    protected override fun renderElement(builder: StringBuilder, indent: String) {
+        if (html.contains("\n")) {
+            builder.append(indent)
+            builder.append(html)
+            if (indent != "")
+                builder.append("\n")
+        } else {
+            builder.append(html)
+        }
     }
 }
 
-class HtmlText(containingTag: HtmlTag?, private val text: String) : HtmlElement(containingTag, ContentStyle.text) {
-    override fun renderElement(builder: StringBuilder, indent: String) {
+public class HtmlText(containingTag: HtmlTag?, private val text: String) : HtmlElement(containingTag, ContentStyle.text) {
+    protected override fun renderElement(builder: StringBuilder, indent: String) {
         builder.append(indent)
         text.htmlEscapeTo(builder)
         if (indent != "")
@@ -185,6 +198,6 @@ class HtmlText(containingTag: HtmlTag?, private val text: String) : HtmlElement(
     }
 }
 
-class InvalidHtmlException(message: String) : RuntimeException(message) {
+public class InvalidHtmlException(message: String) : RuntimeException(message) {
 
 }

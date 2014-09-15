@@ -1,7 +1,6 @@
 package kotlinx.html
 
-
-open class HTML() : HtmlTag(null, "html", RenderStyle.adaptive) {
+public open class HTML() : HtmlTag(null, "html", RenderStyle.adaptive) {
 
     public var doctype: String = "<!DOCTYPE html>"
 
@@ -11,4 +10,4 @@ open class HTML() : HtmlTag(null, "html", RenderStyle.adaptive) {
     }
 }
 
-fun html(init: HTML.() -> Unit) = build(HTML(), init)
+public fun html(init: HTML.() -> Unit): HTML = build(HTML(), init)

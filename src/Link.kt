@@ -1,12 +1,9 @@
 package kotlinx.html
 
 public trait Link {
-    fun href(): String
+    public fun href(): String
 }
 
-class DirectLink(val href: String) : Link {
-    override fun href() = href
+public class DirectLink(private val href: String) : Link {
+    public override fun href() = href
 }
-
-public fun String.link(): Link = DirectLink(this)
-

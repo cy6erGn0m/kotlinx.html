@@ -1,9 +1,8 @@
-package kotlinx.html.tests
+package kotlinx.html.test
 
 import org.junit.*
 import kotlin.test.*
 import kotlinx.html.*
-
 
 class TestHtml5Completeness() {
     Test fun RenderAllTags() {
@@ -14,9 +13,9 @@ class TestHtml5Completeness() {
                 """<!DOCTYPE html>
 <html>
   <head>
-    <meta content="content" name="name"></meta>
+    <meta name="name" content="content"></meta>
     <title></title>
-    <base target="target" href="href"></base>
+    <base href="href" target="target"></base>
     <link rel="stylesheet" type="text/css" href="href"/>
     <script type="text/javascript"></script>
   </head>
@@ -137,7 +136,7 @@ fun HTML.GenerateAllPossibleTags() {
         base("href", "target") {
             // Specifies the base URL/target for all relative URLs in a document
         }
-        link("href".link()) {
+        link("href") {
             // Defines the relationship between a document and an external resource (most used to link to style sheets)
         }
         script {

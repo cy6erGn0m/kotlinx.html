@@ -1,4 +1,4 @@
-package kotlinx.html.tests
+package kotlinx.html.test
 
 import org.junit.*
 import kotlin.test.*
