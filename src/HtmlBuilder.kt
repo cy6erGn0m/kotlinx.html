@@ -106,7 +106,7 @@ public abstract class HtmlTag(containingTag: HtmlTag?, val tagName: String, val 
 
     protected fun renderAttributes(builder: StringBuilder) {
         for (a in attributes.keySet()) {
-            val attr = attributes[a]!!
+            val attr = attributes[a]
             if (attr.length > 0) {
                 builder.append(' ').append(a).append("=\"")
                 attr.htmlEscapeTo(builder)

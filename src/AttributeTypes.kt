@@ -73,7 +73,7 @@ public class EnumAttribute<T : StringEnum<T>>(name: String, val klass: Class<T>)
     }
 
     public override fun decode(s: String): T {
-        for (c in klass.getEnumConstants()!!) {
+        for (c in klass.getEnumConstants()) {
             if (encode(c) == s) return c
         }
 
