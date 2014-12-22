@@ -4,7 +4,7 @@ import org.junit.*
 import kotlin.test.*
 import kotlinx.html.*
 
-class HtmlBasicsTests() {
+class TestHtmlBasics() {
     Test fun testHtml() {
         val doc = html {}
         assertEquals("<!DOCTYPE html>\n<html/>", doc.toString())
